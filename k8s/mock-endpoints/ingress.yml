@@ -1,0 +1,48 @@
+---
+
+# Install the Traefik ingress route(s)
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mocks-http
+  namespace: "mocks"
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`mocks.opengem.nl`)
+    kind: Rule
+    services:
+    - name: nginx
+      port: 80
+    middlewares:
+      - name: https-redirect
+        namespace: default
+
+---
+
+# HTTPS
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mocks-https
+  namespace: "mocks"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`mocks.opengem.nl`)
+    kind: Rule
+    services:
+    - name: nginx
+      port: 80
+    middlewares:
+      - name: https-hsts
+        namespace: default
+  tls:
+    certResolver: default
+    options:
+      namespace: default
+      name: default
